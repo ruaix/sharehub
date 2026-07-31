@@ -37,6 +37,16 @@ public class AdminController {
                 .stream().map(user -> new RegistrationView(user.getId(), user.getName(), maskEmail(user.getEmail()), user.getCreatedAt())).toList();
     }
 
+    @GetMapping("/users")
+    public List<UserView> activeUsers() {
+        return users.selectList(Wrappers.<UserEntity>lambdaQuery()
+                        .eq(UserEntity::getStatus, "ACTIVE")
+                        .orderByAsc(UserEntity::getName)
+                        .last("LIMIT 500"))
+                .stream().map(user -> new UserView(user.getId(), user.getName(), maskEmail(user.getEmail()),
+                        user.getRole(), user.getStatus(), user.getCreatedAt())).toList();
+    }
+
     @PostMapping("/registrations/{id}/approve")
     @Transactional
     public Map<String, String> approve(@PathVariable Long id, Authentication authentication) {
@@ -82,5 +92,6 @@ public class AdminController {
         return email.substring(0, Math.min(2, at)) + "***" + email.substring(at);
     }
     public record RegistrationView(Long id, String name, String email, LocalDateTime createdAt) {}
+    public record UserView(Long id, String name, String email, String role, String status, LocalDateTime createdAt) {}
     public record RegistrationSwitch(@NotNull Boolean enabled) {}
 }
