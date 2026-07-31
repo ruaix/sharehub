@@ -1,0 +1,30 @@
+services:
+  api:
+    environment:
+      SPRING_PROFILES_ACTIVE: postgresql
+      DB_URL: jdbc:postgresql://postgres:5432/sharehub
+      DB_USERNAME: sharehub
+      DB_PASSWORD: ${DB_PASSWORD}
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  postgres:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: sharehub
+      POSTGRES_USER: sharehub
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U sharehub -d sharehub"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    mem_limit: 256m
+    cpus: 0.35
+
+volumes:
+  postgres-data:

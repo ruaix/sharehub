@@ -1,0 +1,60 @@
+server:
+  port: ${API_PORT:8787}
+  address: ${API_HOST:127.0.0.1}
+  servlet:
+    session:
+      cookie:
+        name: sharehub_session
+        http-only: true
+        same-site: strict
+        secure: ${COOKIE_SECURE:false}
+      timeout: 12h
+  forward-headers-strategy: framework
+
+spring:
+  application:
+    name: sharehub-backend
+  profiles:
+    active: ${SPRING_PROFILES_ACTIVE:postgresql}
+  session:
+    store-type: redis
+    redis:
+      namespace: sharehub:session
+  data:
+    redis:
+      host: ${REDIS_HOST:127.0.0.1}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD:}
+      timeout: 3s
+  flyway:
+    enabled: true
+    validate-on-migrate: true
+  jackson:
+    default-property-inclusion: non_null
+
+mybatis-plus:
+  configuration:
+    map-underscore-to-camel-case: true
+  global-config:
+    banner: false
+    db-config:
+      id-type: assign_id
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: never
+
+sharehub:
+  frontend-origin: ${APP_ORIGIN:http://localhost:3000}
+  captcha-secret: ${CAPTCHA_SECRET}
+  ip-hash-salt: ${IP_HASH_SALT}
+  master-key: ${SHAREHUB_MASTER_KEY}
+  admin:
+    name: ${ADMIN_NAME:管理员}
+    email: ${ADMIN_EMAIL}
+    password: ${ADMIN_PASSWORD}
